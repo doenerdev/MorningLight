@@ -6,9 +6,12 @@ public class CharacterScript : MonoBehaviour {
 
 	public float courageLoss = 0.3f;
 	public GameObject courageUI;
+	public GameObject inventorySlot;
 	private float courage = 100;
 	private bool isLighten = false;
+	private float regenerationAmountMax = 0.0f;
 	private float regenerationAmount = 0.0f;
+	private float regenerationSpeed = 0.0f;
 
 	void Update () {
 		if(courage <= 0) {
@@ -33,17 +36,20 @@ public class CharacterScript : MonoBehaviour {
 	}
 	
 	void increaseCourage() {
-		courage = 100 < courage + regenerationAmount ? 100 : courage + regenerationAmount;
+		courage = regenerationAmountMax > regenerationAmount ? (100 < courage + regenerationAmount ? 100 : courage + regenerationSpeed) : courage += 0;
+		regenerationAmount += regenerationSpeed;
 		courageUI.SendMessage("UpdateCourage", Mathf.Floor(courage));
 	}
 	
-	void EnteringLight(float regenerationAmount) {
-		this.regenerationAmount += regenerationAmount;
+	void EnteringLight(Vector2 regenerationData) {
+		this.regenerationSpeed += regenerationData[0];
+		this.regenerationAmountMax = regenerationData[1];
 		isLighten = true;
 	}
 	
 	void EnteringDarkness() {
-		regenerationAmount = 0;
+		regenerationAmount = 0.0f;
+		regenerationSpeed = 0.0f;
 		isLighten = false;
 	}
 

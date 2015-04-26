@@ -7,7 +7,8 @@ public class LightScript : MonoBehaviour {
 	
 	private Collider colliderBox;
 	private Light lightComponent;
-	public float regenerationAmount = 0.1f;
+	public float regenerationSpeed = 0.1f;
+	public float regenerationAmountMax = 30.0f;
 	public GameObject player;
 	
 	void  Start (){
@@ -25,7 +26,8 @@ public class LightScript : MonoBehaviour {
 			Destroy(collider.gameObject);
 		}
 		else if(collider.gameObject.tag == "Player") {
-			player.SendMessage("EnteringLight", regenerationAmount);
+			Vector2 regenerationData = new Vector2(regenerationSpeed, regenerationAmountMax); 
+			player.SendMessage("EnteringLight", regenerationData);
 		}
 	}
 	
