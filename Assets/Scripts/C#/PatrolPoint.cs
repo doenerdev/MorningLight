@@ -10,7 +10,6 @@ public class PatrolPoint : MonoBehaviour {
 	
 	void  OnTriggerEnter ( Collider collider  ){
 		if(collider.gameObject.tag == "Enemy" && activable) {
-			Debug.Log("Enemy Entered");
 			patroller.SendMessage("SetNextPatrolPoint");
 			activable = false;
 		}

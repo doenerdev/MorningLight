@@ -8,7 +8,7 @@ public class EnemyAI : MonoBehaviour {
 	public Transform target;
 	public Transform player;
 	public int fieldOfView;
-	public float viewingDistance;
+	public int viewingDistance;
 	public GameObject[] patrolPoints; //an array holding to 3D Points for the patrol route
 	public int patrolPointDetectionCooldownMax = 200;
 	public int chasePlayerCooldownMax = 400;
@@ -25,6 +25,7 @@ public class EnemyAI : MonoBehaviour {
 	void Start (){
 		navAgent = GetComponent<NavMeshAgent>();
 		Patrol(); //start patrolling
+		patrolPointsLayerMask = ~patrolPointsLayerMask;
 	}
 	
 	void Update (){
@@ -81,10 +82,12 @@ public class EnemyAI : MonoBehaviour {
 	
 	bool IsPlayerConcealed (){ //check if player is hidden by objects
 		RaycastHit hit;
-		if (Physics.Raycast (transform.position, (player.position - transform.position), out hit)) { //check if the player isn't hidden by any objects
+		if (Physics.Raycast (transform.position, (player.position - transform.position), out hit, Mathf.Infinity, patrolPointsLayerMask)) { //check if the player isn't hidden by any objects
 			if(hit.transform.gameObject.tag == "Player") {
 				return false;
 			}
+			else 
+				Debug.Log (hit.transform.gameObject.tag);
 		}
 		return true;
 	}
@@ -99,32 +102,22 @@ public class EnemyAI : MonoBehaviour {
 		navAgent.SetDestination(destination);
 	}
 	
-	void setPatrolDestionation ( int patrolPoint  ){
+	void setPatrolDestionation (int patrolPoint){
 		destination = patrolPoints[patrolPoint].transform.position;
 		navAgent.SetDestination(destination);
 	}
 	
-	void CheckControlPoints (){
-		RaycastHit hit;
-		if (Physics.Raycast (transform.position, transform.forward, out hit, Mathf.Infinity, patrolPointsLayerMask)) { //check if the player isn't hidden by any objects
-			if(Vector3.Distance(hit.point, transform.position) < 0.5f) {
-				Debug.Log("NewPoint");
-				patrolPointDetectionCooldown = patrolPointDetectionCooldownMax;
-				SetNextPatrolPoint();
-			}
-		}
-	}
-	
 	void SetNextPatrolPoint (){
-		if(patrolPointCounter < patrolPoints.Length-1) {
-			patrolPointCounter++; //set next patrol point
+		if(!chasePlayer) {
+			if(patrolPointCounter < patrolPoints.Length-1) {
+				patrolPointCounter++; //set next patrol point
+			}
+			else {
+				patrolPointCounter = 0; //reset patrol point
+			}
+			destination = patrolPoints[patrolPointCounter].transform.position;
+			navAgent.SetDestination(destination);
 		}
-		else {
-			patrolPointCounter = 0; //reset patrol point
-		}
-		Debug.Log(patrolPointCounter);
-		destination = patrolPoints[patrolPointCounter].transform.position;
-		navAgent.SetDestination(destination);
 	}
 	
 	void CheckForLights (){
